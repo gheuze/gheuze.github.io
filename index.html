@@ -219,12 +219,34 @@ pre code {
 </div>
 <div id="utilisation-avancée-le-script-doit-pouvoir-tourner-sur-la-version-classique-la-version-rstudiopro-et-les-serveurs-r-dans-le-cadre-dune-automatisation-pour-ces-derniers" class="section level4">
 <h4>Utilisation avancée : le script doit pouvoir tourner sur la version classique, la version RStudioPro et les serveurs R (dans le cadre d’une automatisation pour ces derniers)</h4>
-<p>Les serveurs R ne permettent pas l’utilisation du mode projet et donc ne peuvent tourner avec des chemins relatifs (si les scripts R sont sur les serveurs). Dans ce cas, afin de ne pas avoir à changer à chaque fois les chemins d’accès, voilà un bout de code à mettre en début de script (merci Cécile), qui permet de gérer les différences de lancement, sans changer le programme à chaque fois. Les chemins mentionnés sont des exemples et doivent être adaptés (voir Guillaume H pour plus d’explications au besoin)</p>
-<p><code>if(Sys.info()[&quot;nodename&quot;] %in% c(&quot;intr.ansp.local&quot;, &quot;prdr.ansp.local&quot;)) {</code> <code>## SERVEURS R, servant si les scripts doivent être automatisés</code> <code>dossier_bilans &lt;- &quot;/data/apps/S_DIRE_CR_paca_corse/Investigation/2020_Covid-19/BILANS/&quot;</code> <code>dossier_sidep &lt;- &quot;/data/apps/S_moderniser_data_SIDEP/National/pat_new_def/PCR_TA/&quot;</code></p>
-<p><code>} else if(Sys.info()[&quot;nodename&quot;] %in% c(&quot;PRDRSERVERPRO2.ANSP.LOCAL&quot;)) {</code> <code>## RStudioPro</code> <code>dossier_bilans &lt;- &quot;~/Lecteur_S/DIRE/CIRE_PACA_CORSE/Investigation/2020_Covid-19/BILANS/&quot;</code> <code>dossier_sidep &lt;- &quot;~/Lecteur_S/moderniser_data/SIDEP/National/pat_new_def/PCR_TA/&quot;</code></p>
-<p><code>### date et heure en francais dans RStudioPro</code> <code>Sys.setlocale(&quot;LC_TIME&quot;, &quot;fr_FR.UTF-8&quot;)</code></p>
-<p><code>} else {</code> <code>## RESEAUX</code> <code>dossier_bilans &lt;- &quot;S:/DIRE/CIRE_PACA_CORSE/Investigation/2020_Covid-19/BILANS/&quot;</code> <code>dossier_sidep &lt;- &quot;S:/moderniser_data/SIDEP/National/pat_new_def/PCR_TA/&quot;</code> <code>}</code></p>
-<p>ensuite, dans le script, la lecture, l’écriture des fichiers doit être sous la forme (là aussi, exemple) <code>sg_iris_imp &lt;- read_rds(paste0(dossier_sidep, &quot;sg_iris_imp.rds&quot;))</code></p>
+<p>Les serveurs R ne permettent pas l’utilisation du mode projet et donc ne peuvent tourner avec des chemins relatifs (si les scripts R sont sur les serveurs). Dans ce cas, afin de ne pas avoir à changer à chaque fois les chemins d’accès, voilà un bout de code à mettre en début de script (merci Cécile), qui permet de gérer les différences de lancement, sans changer le programme à chaque fois. Les chemins mentionnés sont des exemples et doivent être adaptés (voir Guillaume H pour plus d’explications au besoin).</p>
+<p>Une variable par chemin doit être créée en introduction du script. Dans la suite, tous les chemins doivent faire référence à cette variable. Cela va permettre au script de fonctionner d’où qu’il soit lancé (VDI classique, RStudio Pro ou serveurs R).</p>
+<ul>
+<li>paramétrage des chemins</li>
+</ul>
+<p>Pour RStudio Pro, attention aux chemins, notamment sur le <em>L:</em>, qui est différent des autres (voir ci-dessus).</p>
+<p><i>if(Sys.info()[“nodename”] %in% c(“intr.ansp.local”, “prdr.ansp.local”)) {</p>
+<p># SERVEURS R</p>
+<p><strong>dossier_sidep</strong> &lt;- “/data/apps/S_moderniser_data_SIDEP/National/pat_new_def/PCR_TA/”</p>
+<p><strong>dossier_bilans</strong> &lt;- “/data/apps/S_DIRE_CR_paca_corse/Investigation/2020_Covid-19/BILANS/”</p>
+<p>} else if(Sys.info()[“nodename”] %in% c(“PRDRSERVERPRO2.ANSP.LOCAL”)) {</p>
+<p># RStudioPro</p>
+<p><strong>dossier_sidep</strong> &lt;- “~/Lecteur_S/moderniser_data/SIDEP/National/pat_new_def/PCR_TA/”</p>
+<p><strong>dossier_bilans</strong> &lt;- “~/Lecteur_S/DIRE/CIRE_PACA_CORSE/Investigation/2020_Covid-19/BILANS/”</p>
+<p>} else {</p>
+<p># RESEAU VDI CLASSIQUE</p>
+<p><strong>dossier_sidep</strong> &lt;- “S:/moderniser_data/SIDEP/National/pat_new_def/PCR_TA/”</p>
+<p><strong>dossier_bilans</strong> &lt;- “S:/DIRE/CIRE_PACA_CORSE/Investigation/2020_Covid-19/BILANS/”</p>
+<p>}</i></p>
+<ul>
+<li>lecture données</li>
+</ul>
+<p><i>dt_pat_date &lt;- read_rds(paste0(<strong>dossier_sidep</strong>, “dt_pat_date.rds”))</i></p>
+<ul>
+<li>sorties</li>
+</ul>
+<p><i>write_excel_csv2(donnees_clage, paste0(<strong>dossier_bilans</strong>, donnees.csv&quot;))</p>
+<p>ggsave(paste0(<strong>dossier_bilans</strong>, “graphe.png”))</i></p>
 </div>
 
 
